@@ -27,7 +27,16 @@ if (link_components.netloc == 'readmanga.me' or link_components.netloc == 'adult
                 ch = -1
             chapters_list.append(dict(link = chapter, vol = vol, ch = ch))
         print("Введите номера глав, которые вы хотите скачать, через пробел, если хотите скачать все главы, нажмите ENTER")
-        chapters_to_download_list = list(map(int, input().split()))
+        input_string = input()
+        if (input_string.find('-') != -1):
+            num = input_string.find('-')
+            l_num = int(input_string[:num])
+            r_num = int(input_string[num+1:])
+            chapters_to_download_list = list()
+            for a in range(l_num, r_num + 1):
+                chapters_to_download_list.append(a)
+        else:
+              chapters_to_download_list = list(map(int, input().split()))
         download_all = False
         if len(chapters_to_download_list) == 0:
             download_all = True
@@ -45,6 +54,6 @@ if (link_components.netloc == 'readmanga.me' or link_components.netloc == 'adult
                         os.mkdir(ch_path)
                     #Download manga to directory
                     print('Скачиваем том ' + str(chapter['vol']) + ", главу " + str(chapter['ch']) + '...')
-                    print('http://'+link_components.netloc+'/'+manga_name+'/'+chapter['link'])
+                    print('http://'+link_components.netloc+'/'+chapter['link'])
                     mangadownloader.MangaDownloader.download_chapters('http://'+link_components.netloc+chapter['link'], ch_path)
         print('Манга загружена')
