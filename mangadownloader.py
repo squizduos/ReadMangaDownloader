@@ -21,6 +21,7 @@ class Chapter:
 
 
 class MangaDownloader:
+
     def get_chapters_list(link):
         # Данная процедура скачивает список глав манги, ссылка на которую передаётся в качестве единственного параметра
         my_request = urllib.request.Request(link)
@@ -82,6 +83,7 @@ class MangaDownloader:
         if len(links) < 1:
             return 4
         for download_link in links:
+            #Скачиваем изображение в нужную папку
             filename = download_link.split("/")[-1]
             try:
                 image_file = urllib.request.urlretrieve(download_link, os.path.join(path, filename))
@@ -91,10 +93,4 @@ class MangaDownloader:
                     image_file = urllib.request.urlretrieve(download_link, os.path.join(path, filename))
                 except:
                     print('Error while downloading file ' + download_link + ", passing...")
-
-            #print(download_link)
-            #image = urllib.request.urlopen(download_link)
-            #image_file = open(os.path.join(path, filename), 'wb')
-            #image_file.write(image.read())
-            #image_file.close()
         return 0

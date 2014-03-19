@@ -1,8 +1,16 @@
-__author__ = 'sam'
+#-*- coding: utf-8 -*-
+
+# (c) 2013-2014 Squizduos Labs LLC. All rights reserved.
+# This code is licensed under the GNU General Public License, version 2 or later.
+
+# (c) 2013-2014 Семён Бочкарёв. Все права защищены.
+# Данный код распространяется на условиях лицензии GNU GPL версии 2 или более поздней
 
 import mangadownloader
 import urllib
 import os
+
+# Вводим ссылку на сайт
 
 print("Введите ссылку на мангу с сайта readmanga.me или adultmanga.ru")
 
@@ -14,7 +22,7 @@ if (link_components.netloc == 'readmanga.me' or link_components.netloc == 'adult
     chapters = mangadownloader.MangaDownloader.get_chapters_list('http://'+link_components.netloc+'/'+manga_name)
     chapters_list = []
     #Getting chapters list
-    if chapters == 'Network_error' or chapters == 'Parsing error':
+    if chapters == 1 or chapters == 2:
         print('Невозможно скачать мангу в данный момент.')
     else:
         for chapter in chapters:
