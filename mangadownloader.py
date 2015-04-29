@@ -61,14 +61,14 @@ class MangaDownloader:
         text = page.read().decode(encoding="UTF-8")
         doc = lxml.html.document_fromstring(str(text))
         # Ищем ссылки на данное изображение
-        for element in doc.xpath("/html/body/div[4]/script"):
+        for element in doc.xpath("/html/body/div[6]/script[1]"):
             if element.text.find('pictures') != -1:
                 script_text = element.text
         try:
             script_lines = script_text.split("\n")
         except:
             #Если не существует, то глав не найдено-с
-            return 3
+            return 1
         for line in script_lines:
             if line.find('var pictures') != -1:
                 pictures_line = line

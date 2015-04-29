@@ -62,6 +62,6 @@ if (link_components.netloc == 'readmanga.me' or link_components.netloc == 'adult
                         os.mkdir(ch_path)
                     #Download manga to directory
                     print('Скачиваем том ' + str(chapter['vol']) + ", главу " + str(chapter['ch']) + '...')
-                    print('http://'+link_components.netloc+'/'+chapter['link'])
+                    print('http://'+link_components.netloc+chapter['link'])
                     mangadownloader.MangaDownloader.download_chapters('http://'+link_components.netloc+chapter['link'], ch_path)
         print('Манга загружена')
