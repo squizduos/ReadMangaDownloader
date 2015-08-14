@@ -39,11 +39,12 @@ class MangaDownloader:
         # Ищем главы манги
         for element in doc.cssselect("html body div#mangaBox.pageBlock div.leftContent div.expandable"):
             for chapter in element.cssselect("tr td a"):
-                if chapter.attrib['href'].startswith('/'):
-                    lnk = chapter.attrib['href']
-                    lnk += "?mature=1"
-                    links.append(lnk)
-                    #links.append(chapter.attrib['href'])
+                if (chapter.get('href')):
+                     if chapter.attrib['href'].startswith('/'):
+                        lnk = chapter.attrib['href']
+                        lnk += "?mature=1"
+                        links.append(lnk)
+						#links.append(chapter.attrib['href'])
         if len(links) == 0:
             return 2
         return links
