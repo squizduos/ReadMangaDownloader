@@ -12,12 +12,16 @@ import os
 
 # Вводим ссылку на сайт
 
-print("Введите ссылку на мангу с сайта readmanga.me или adultmanga.ru")
+print("Введите ссылку на мангу с сайта readmanga.me или mintmanga.com")
 
 link = input()
 link_components = urllib.parse.urlparse(link)
 
-if (link_components.netloc == 'readmanga.me' or link_components.netloc == 'adultmanga.ru') and (link_components.path[1:].find('/') == -1):
+if (link_components.netloc == 'readmanga.me' or
+    link_components.netloc == 'adultmanga.ru' or
+    link_components.netloc == 'mintmanga.com') and \
+   (link_components.path[1:].find('/') == -1):
+
     manga_name = link_components.path[1:]
     chapters = mangadownloader.MangaDownloader.get_chapters_list('http://'+link_components.netloc+'/'+manga_name)
     chapters_list = []
