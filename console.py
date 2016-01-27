@@ -9,7 +9,9 @@
 import mangadownloader
 import urllib
 import os
+from multiprocessing.dummy import Pool as WorkerPool
 
+pool = WorkerPool(10)
 # Вводим ссылку на сайт
 
 print("Введите ссылку на мангу с сайта readmanga.me или mintmanga.com")
@@ -21,7 +23,7 @@ if (link_components.netloc == 'readmanga.me' or
     link_components.netloc == 'adultmanga.ru' or
     link_components.netloc == 'mintmanga.com') and \
    (link_components.path[1:].find('/') == -1):
-
+    
     manga_name = link_components.path[1:]
     chapters = mangadownloader.MangaDownloader.get_chapters_list('http://'+link_components.netloc+'/'+manga_name)
     chapters_list = []
@@ -48,7 +50,7 @@ if (link_components.netloc == 'readmanga.me' or
             for a in range(l_num, r_num + 1):
                 chapters_to_download_list.append(a)
         else:
-              chapters_to_download_list = list(map(int, input().split()))
+              chapters_to_download_list = list(map(int, input_string.split()))
         download_all = False
         if len(chapters_to_download_list) == 0:
             download_all = True
@@ -58,14 +60,15 @@ if (link_components.netloc == 'readmanga.me' or
         for chapter in chapters_list:
             if (ch != -1):
                 if (download_all == True) or (chapter['ch'] in chapters_to_download_list):
-                    vol_path = os.path.join(work_directory, manga_name, 'vol'+str(chapter['vol']))
+                    vol_path = os.path.join(work_directory, manga_name, str(chapter['vol']).zfill(4))
                     if not os.path.exists(vol_path):
                         os.mkdir(vol_path)
-                    ch_path = os.path.join(work_directory, manga_name, 'vol'+str(chapter['vol']), 'ch'+str(chapter['ch']))
+                    ch_path = os.path.join(work_directory, manga_name, str(chapter['vol']).zfill(4), str(chapter['ch']).zfill(4))
                     if not os.path.exists(ch_path):
                         os.mkdir(ch_path)
                     #Download manga to directory
-                    print('Скачиваем том ' + str(chapter['vol']) + ", главу " + str(chapter['ch']) + '...')
-                    print('http://'+link_components.netloc+chapter['link'])
-                    mangadownloader.MangaDownloader.download_chapters('http://'+link_components.netloc+chapter['link'], ch_path)
-        print('Манга загружена')
+                    
+                    pool.apply_async(mangadownloader.MangaDownloader.download_chapters,('http://'+link_components.netloc+chapter['link'], ch_path))
+        print('loading...')
+pool.close()
+pool.join()

@@ -47,7 +47,7 @@ class MangaDownloader:
 						#links.append(chapter.attrib['href'])
         if len(links) == 0:
             return 2
-        return links
+        return reversed(links)
 
     def download_chapters(link, path):
         # Данная процедура скачивает в данную папку главу манги
@@ -78,15 +78,21 @@ class MangaDownloader:
             links.append(lnk)
         if len(links) < 1:
             return 4
+        imgNum = 0
         for download_link in links:
+            imgNum += 1
+            errCount = 0
+            fileType = download_link.split(".")[-1]
             #Скачиваем изображение в нужную папку
-            filename = download_link.split("/")[-1]
-            try:
-                image_file = urllib.request.urlretrieve(download_link, os.path.join(path, filename))
-            except:
-                print('Error while downloading file ' + download_link + ", trying again")
+            while True:
+                if errCount > 100: #тк лочится только один поток то от сотни проверок хуже не станет
+                    print('Error while downloading file ' + download_link)
+                    break
                 try:
-                    image_file = urllib.request.urlretrieve(download_link, os.path.join(path, filename))
+                    image_file = urllib.request.urlretrieve(download_link, os.path.join(path, str(imgNum).zfill(4) + "." + fileType))
                 except:
-                    print('Error while downloading file ' + download_link + ", passing...")
+                    errCount += 1
+                    continue
+                break
+
         return 0
