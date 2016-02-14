@@ -1,16 +1,16 @@
 #-*- coding: utf-8 -*-
 
-# (c) 2013-2014 Squizduos Labs LLC. All rights reserved.
+# (c) 2013-2014 Squizduos Labs LLC. 
 # This code is licensed under the GNU General Public License, version 2 or later.
 
-# (c) 2013-2014 Семён Бочкарёв. Все права защищены.
+# (c) 2013-2014 Семён Бочкарёв. 
 # Данный код распространяется на условиях лицензии GNU GPL версии 2 или более поздней
 
 import lxml.html
 import urllib.request
-import codecs
-import logging
 import os
+pages = 0
+progress = 0
 
 class Chapter:
     # Класс, который обозначает главу манги
@@ -50,6 +50,8 @@ class MangaDownloader:
         return reversed(links)
 
     def download_chapters(link, path):
+        global pages
+        global progress
         # Данная процедура скачивает в данную папку главу манги
         my_request = urllib.request.Request(link)
         # Данные заголовки необходимы, чтобы сайт считал нас браузером
@@ -76,6 +78,7 @@ class MangaDownloader:
             el = el.split(',')
             lnk = el[1] + el[0] + el[2]
             links.append(lnk)
+            pages += 1
         if len(links) < 1:
             return 4
         imgNum = 0
@@ -94,5 +97,6 @@ class MangaDownloader:
                     errCount += 1
                     continue
                 break
+            progress += 1
 
         return 0
