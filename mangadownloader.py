@@ -1,16 +1,16 @@
 #-*- coding: utf-8 -*-
 
-# (c) 2013-2014 Squizduos Labs LLC. All rights reserved.
+# (c) 2013-2014 Squizduos Labs LLC. 
 # This code is licensed under the GNU General Public License, version 2 or later.
 
-# (c) 2013-2014 Семён Бочкарёв. Все права защищены.
+# (c) 2013-2014 Семён Бочкарёв. 
 # Данный код распространяется на условиях лицензии GNU GPL версии 2 или более поздней
 
 import lxml.html
 import urllib.request
-import codecs
-import logging
 import os
+pages = 0
+progress = 0
 
 class Chapter:
     # Класс, который обозначает главу манги
@@ -47,9 +47,11 @@ class MangaDownloader:
 						#links.append(chapter.attrib['href'])
         if len(links) == 0:
             return 2
-        return links
+        return reversed(links)
 
     def download_chapters(link, path):
+        global pages
+        global progress
         # Данная процедура скачивает в данную папку главу манги
         my_request = urllib.request.Request(link)
         # Данные заголовки необходимы, чтобы сайт считал нас браузером
@@ -76,17 +78,25 @@ class MangaDownloader:
             el = el.split(',')
             lnk = el[1] + el[0] + el[2]
             links.append(lnk)
+            pages += 1
         if len(links) < 1:
             return 4
+        imgNum = 0
         for download_link in links:
+            imgNum += 1
+            errCount = 0
+            fileType = download_link.split(".")[-1]
             #Скачиваем изображение в нужную папку
-            filename = download_link.split("/")[-1]
-            try:
-                image_file = urllib.request.urlretrieve(download_link, os.path.join(path, filename))
-            except:
-                print('Error while downloading file ' + download_link + ", trying again")
+            while True:
+                if errCount > 100: #тк лочится только один поток то от сотни проверок хуже не станет
+                    print('Error while downloading file ' + download_link)
+                    break
                 try:
-                    image_file = urllib.request.urlretrieve(download_link, os.path.join(path, filename))
+                    image_file = urllib.request.urlretrieve(download_link, os.path.join(path, str(imgNum).zfill(4) + "." + fileType))
                 except:
-                    print('Error while downloading file ' + download_link + ", passing...")
+                    errCount += 1
+                    continue
+                break
+            progress += 1
+
         return 0

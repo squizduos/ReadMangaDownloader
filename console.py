@@ -1,14 +1,16 @@
 #-*- coding: utf-8 -*-
 
-# (c) 2013-2014 Squizduos Labs LLC. All rights reserved.
+# (c) 2013-2014 Squizduos Labs LLC. 
 # This code is licensed under the GNU General Public License, version 2 or later.
 
-# (c) 2013-2014 Семён Бочкарёв. Все права защищены.
+# (c) 2013-2014 Семён Бочкарёв. 
 # Данный код распространяется на условиях лицензии GNU GPL версии 2 или более поздней
 
-import mangadownloader
+import mangadownloader as md
 import urllib
 import os
+from multiprocessing.dummy import Pool as WorkerPool
+
 
 # Вводим ссылку на сайт
 
@@ -19,11 +21,16 @@ link_components = urllib.parse.urlparse(link)
 
 if (link_components.netloc == 'readmanga.me' or
     link_components.netloc == 'adultmanga.ru' or
-    link_components.netloc == 'mintmanga.com') and \
-   (link_components.path[1:].find('/') == -1):
-
-    manga_name = link_components.path[1:]
-    chapters = mangadownloader.MangaDownloader.get_chapters_list('http://'+link_components.netloc+'/'+manga_name)
+    link_components.netloc == 'mintmanga.com'):
+        
+    pathCount = link_components.path[1:].count('/') #обработка адреса
+    if pathCount != 0:
+        first = link_components.path[1:].find('/')
+        manga_name = link_components.path[1:first+1]
+    else:
+        manga_name = link_components.path[1:]
+        
+    chapters = md.MangaDownloader.get_chapters_list('http://'+link_components.netloc+'/'+manga_name)
     chapters_list = []
     #Getting chapters list
     if chapters == 1 or chapters == 2:
@@ -48,24 +55,33 @@ if (link_components.netloc == 'readmanga.me' or
             for a in range(l_num, r_num + 1):
                 chapters_to_download_list.append(a)
         else:
-              chapters_to_download_list = list(map(int, input().split()))
+              chapters_to_download_list = list(map(int, input_string.split()))
         download_all = False
         if len(chapters_to_download_list) == 0:
             download_all = True
         work_directory = os.curdir
         if not os.path.exists(os.path.join(work_directory, manga_name)):
             os.mkdir(os.path.join(work_directory, manga_name))
+        pool = WorkerPool(len(chapters_list)) #лимита на закачку нет
         for chapter in chapters_list:
             if (ch != -1):
                 if (download_all == True) or (chapter['ch'] in chapters_to_download_list):
-                    vol_path = os.path.join(work_directory, manga_name, 'vol'+str(chapter['vol']))
+                    vol_path = os.path.join(work_directory, manga_name, str(chapter['vol']).zfill(4))
                     if not os.path.exists(vol_path):
                         os.mkdir(vol_path)
-                    ch_path = os.path.join(work_directory, manga_name, 'vol'+str(chapter['vol']), 'ch'+str(chapter['ch']))
+                    ch_path = os.path.join(work_directory, manga_name, str(chapter['vol']).zfill(4), str(chapter['ch']).zfill(4))
                     if not os.path.exists(ch_path):
                         os.mkdir(ch_path)
                     #Download manga to directory
-                    print('Скачиваем том ' + str(chapter['vol']) + ", главу " + str(chapter['ch']) + '...')
-                    print('http://'+link_components.netloc+chapter['link'])
-                    mangadownloader.MangaDownloader.download_chapters('http://'+link_components.netloc+chapter['link'], ch_path)
-        print('Манга загружена')
+                    
+                    pool.apply_async(md.MangaDownloader.download_chapters,('http://'+link_components.netloc+chapter['link'], ch_path))
+                    
+        lastProgress = 0
+        while md.progress < md.pages or md.pages == 0:
+            if lastProgress != md.progress:
+                print("\rloaded " + str(md.progress) + "/" + str(md.pages), end="")
+                lastProgress = md.progress
+        print("\ndownload complete")
+        pool.close()
+        pool.join()
+
