@@ -62,7 +62,7 @@ if (link_components.netloc == 'readmanga.me' or
         work_directory = os.curdir
         if not os.path.exists(os.path.join(work_directory, manga_name)):
             os.mkdir(os.path.join(work_directory, manga_name))
-        pool = WorkerPool(len(chapters_list)) #лимита на закачку нет
+        pool = WorkerPool(len(chapters_list) if len(chapters_list) < 25 else 25) #лимит в 25 потоков максимум
         for chapter in chapters_list:
             if (ch != -1):
                 if (download_all == True) or (chapter['ch'] in chapters_to_download_list):
